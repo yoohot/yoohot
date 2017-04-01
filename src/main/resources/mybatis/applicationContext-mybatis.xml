@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	
+	<context:component-scan base-package="cn.yoohot.mapper,cn.yoohot.service"/>
+	
+	
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+	<property name="username" value="#{loadProperties['mysql.username']}"/>
+	<property name="password" value="#{loadProperties['mysql.password']}"/>
+	<property name="url" value="#{loadProperties['mysql.url']}"/>
+	<property name="driverClassName" value="#{loadProperties['mysql.driver']}"/>
+	<property name="maxActive" value="#{loadProperties['maxActive']}"/>
+	<property name="minIdle" value="#{loadProperties['minIdle']}"/>
+	<property name="initialSize" value="#{loadProperties['initalSize']}"/>
+	<property name="maxWait" value="#{loadProperties['maxWait']}"/>
+	<property name="filters" value="!stat"></property>
+	
+	</bean>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 <property name="configLocation" value="classpath:mybatis/mybatis-configuration.xml"/>
+	 <property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!--propertt sqlSessionFactory 默认名，不用配，配置了反而导致${}失效 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	  <property name="basePackage" value="cn.yoohot.mapper"></property>
+<!-- 	 <property name="sqlSessionFactory" ref="sessionFactory"></property> -->
+	</bean>
+	
+	<!--启用注解事务  -->
+	<tx:annotation-driven/>
+    <!-- 启用xml事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+      <property name="dataSource" ref="dataSource"/>
+    </bean>
+     <tx:advice id="txAdvice"  transaction-manager="transactionManager" >
+      <tx:attributes>
+          <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+          <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+          <tx:method name="retrieve*" propagation="SUPPORTS" read-only="true"/>
+          <tx:method name="*"  propagation="REQUIRED" rollback-for="java.lang.Exception" />
+      </tx:attributes>
+    </tx:advice>
+    <aop:config>
+       <aop:pointcut expression="execution(* cn.yoohoy.service.*.*(..))" id="pointCut"/>
+       <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut"/>
+    </aop:config>
+    
+    <!-- 启动注解aop -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    
+ 
+
+</beans>

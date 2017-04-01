@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+
+	<!--只扫描controller下的 -->
+	<context:component-scan base-package="cn.yoohot.controller" />
+
+
+	<!--默认基于注解的 mapping 和 handler的解析器 -->
+	<mvc:annotation-driven enable-matrix-variables="true" />
+
+	<!--视图解析器 prefix+ viewname+ suffix -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+
+	<!-- 文件上传 -->
+ 	<bean
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="uft-8" />
+		<property name="maxUploadSize" value="10485760000"></property>
+		<property name="maxInMemorySize" value="40960"></property>
+	</bean>
+ 
+	<!-- 不用额外配置静态资源 mvc:resources -->
+	<mvc:default-servlet-handler />
+
+
+
+
+
+
+	<!-- <mvc:interceptors> <mvc:interceptor> <mvc:mapping path=""/> <bean></bean> 
+		</mvc:interceptor> <mvc:interceptor> <mvc:mapping path=""/> <bean></bean> 
+		</mvc:interceptor> </mvc:interceptors> -->
+
+
+<beans profile="local">
+   <util:properties location="classpath:application.local.properties"  id="loadProperties"/>
+</beans>
+
+<beans profile="test">
+   <util:properties location="classpath:application.test.properties"  id="loadProperties"/>
+</beans>
+
+
+<beans profile="prod">
+<util:properties location="classpath:application.prod.properties"  id="loadProperties"/>
+</beans>
+
+
+
+
+
+
+
+</beans>
